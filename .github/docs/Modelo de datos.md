@@ -147,14 +147,6 @@
 - usuario_rol.id_usuario → usuario.id_usuario
 - usuario_rol.id_role → rol.id_rol
 
-
-
-
-
-
-
-
-
 # Modelo de Datos - BBDD Motor de Coincidencias
 
 ## Tabla: coincidencia_request
@@ -211,3 +203,82 @@
 - coincidencias_results.id_coincidencia_request → coincidencia_request.id_coincidencia_request
 
 - circuit_breaker_estado.estado_circuitbreaker → estado_circuitbreaker.id_estado_circuitbreaker
+
+# Modelo de Datos - BBDD Notificación
+
+## Tabla: notificacion
+- **id_notificacion** (PK)
+- id_canal_preferencia (FK)
+- id_reporte (FK)
+- id_usuario (FK)
+- id_status (FK)
+- payload_json
+- sent_at (datetime)
+- mensaje_error
+- created_at (datetime)
+
+## Tabla: notificacion_template
+- **id_notificacion_template** (PK)
+- id_canal_preferencia (FK)
+- asunto
+- cuerpo
+- is_active
+
+## Tabla: notificacion_envio_intentos
+- **id_notificacion_envio_intentos** (PK)
+- id_notificacion (FK)
+- num_intentos
+- response_code
+- response_body
+- created_at (datetime)
+- id_notificacion_status (FK)
+
+## Tabla: notificacion_status
+- **id_notificacion_status** (PK)
+- descripcion
+
+---
+
+## Relaciones
+
+- notificacion.id_status → notificacion_status.id_notificacion_status
+
+- notificacion_envio_intentos.id_notificacion → notificacion.id_notificacion
+- notificacion_envio_intentos.id_notificacion_status → notificacion_status.id_notificacion_status
+
+- notificacion.id_canal_preferencia → canal_preferencia.id_canal_preferencia
+- notificacion_template.id_canal_preferencia → canal_preferencia.id_canal_preferencia
+
+- notificacion.id_usuario → usuario.id_usuario
+- notificacion.id_reporte → reporte.id_reporte
+
+
+# Modelo de Datos - BBDD multimedia
+
+## Tabla: multimedia
+- **id_multimedia** (PK)
+- id_reporte_mascota (FK)
+- id_tipo_multimedia (FK)
+- s3_bucket
+- s3_key
+- size_bytes
+- hash
+- id_usuario (FK)
+- created_at (datetime)
+
+## Tabla: multimedia_info
+- **id_multimedia_info** (PK)
+- id_multimedia (FK)
+- width
+- height
+- created_at (datetime)
+
+---
+
+## Relaciones
+
+- multimedia_info.id_multimedia → multimedia.id_multimedia
+
+- multimedia.id_reporte_mascota → reporte_mascota.id_reporte_mascota
+- multimedia.id_tipo_multimedia → tipo_multimedia.id_tipo_multimedia
+- multimedia.id_usuario → usuario.id_usuario
