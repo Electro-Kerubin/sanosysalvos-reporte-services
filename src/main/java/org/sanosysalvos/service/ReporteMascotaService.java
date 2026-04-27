@@ -7,6 +7,7 @@ import org.sanosysalvos.model.*;
 import org.sanosysalvos.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,26 @@ public class ReporteMascotaService {
 
     public List<ReporteMascotaDTO> findByMascota(Integer idMascota) {
         return reporteRepo.findByMascota_IdMascota(idMascota)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<ReporteMascotaDTO> findByContacto(Integer idContacto) {
+        return reporteRepo.findByContacto_IdContacto(idContacto)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<ReporteMascotaDTO> findByFechas(LocalDateTime desde, LocalDateTime hasta) {
+        return reporteRepo.findByFechaReporteBetween(desde, hasta)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<ReporteMascotaDTO> findMascotasPerdidas() {
+        return reporteRepo.findMascotasPerdidas()
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<ReporteMascotaDTO> findMascotasEncontradas() {
+        return reporteRepo.findMascotasEncontradas()
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
