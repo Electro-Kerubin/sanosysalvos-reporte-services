@@ -28,6 +28,32 @@ public class MascotaService {
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada con id: " + id));
     }
 
+    public List<MascotaDTO> findByRaza(Integer idRaza) {
+        return mascotaRepo.findByRaza_IdRaza(idRaza).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<MascotaDTO> findByEspecie(Integer idEspecie) {
+        return mascotaRepo.findByEspecie_IdEspecie(idEspecie).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<MascotaDTO> findByColor(String color) {
+        return mascotaRepo.findByColorPrimarioIgnoreCase(color).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<MascotaDTO> findByTamano(String tamano) {
+        return mascotaRepo.findByTamanoIgnoreCase(tamano).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public MascotaDTO findByChip(String idChip) {
+        return mascotaRepo.findByIdChip(idChip)
+                .map(this::toDTO)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada con chip: " + idChip));
+    }
+
+    public List<MascotaDTO> findByNombre(String nombre) {
+        return mascotaRepo.findByNombreMascotaContainingIgnoreCase(nombre).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
     public MascotaDTO create(MascotaDTO dto) {
         return toDTO(mascotaRepo.save(toEntity(dto)));
     }
