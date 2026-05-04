@@ -29,6 +29,6 @@ public class ReporteMascota {
     @Column(name = "fecha_reporte")
     private LocalDateTime fechaReporte = LocalDateTime.now();
 
-    private String estado; // ej. "ACTIVO", "ENCONTRADO"
+    private String estado; // estado del reporte: "reportado", "en proceso", "encontrado", etc.   
     private String imagenUrl;
 }
