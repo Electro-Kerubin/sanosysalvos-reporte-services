@@ -34,5 +34,5 @@ public class Mascota {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contacto_id")
-    private Contacto contacto; // dueño / contacto principal
+    private Contacto contacto;
 }
