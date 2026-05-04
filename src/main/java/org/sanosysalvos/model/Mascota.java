@@ -21,6 +21,8 @@ public class Mascota {
     private LocalDate fechaNacimiento;
     private String sexo;
     private String color;
+    private String marcaDistintiva;
+    private String detallesAdicionales;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "especie_id")
