@@ -6,6 +6,7 @@ import org.sanosysalvos.dto.ReporteMascotaRequestDTO;
 import org.sanosysalvos.model.*;
 import org.sanosysalvos.repository.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +22,9 @@ public class ReporteMascotaService {
     private final ContactoRepository contactoRepo;
     private final MarcaDistintivaRepository marcaRepo;
     private final MascotaRepository mascotaRepo;
+
+    // ── Outbox: persistencia desacoplada del evento ──────────────────────────
+    private final OutboxService outboxService;
 
     public List<ReporteMascotaDTO> findAll() {
         return reporteRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
@@ -67,16 +71,29 @@ public class ReporteMascotaService {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    @Transactional
     public ReporteMascotaDTO create(ReporteMascotaRequestDTO request) {
         ReporteMascota entity = toEntity(request);
-        return toDTO(reporteRepo.save(entity));
+        ReporteMascotaDTO dto = toDTO(reporteRepo.save(entity));
+
+        // Patrón Outbox: guarda el evento en la misma transacción que el reporte.
+        // OutboxEventPublisher lo publicará a RabbitMQ de forma asíncrona.
+        outboxService.registrar("REPORTE_CREADO", dto.getIdReporteMascota(), dto);
+
+        return dto;
     }
 
+    @Transactional
     public ReporteMascotaDTO update(Integer id, ReporteMascotaRequestDTO request) {
         reporteRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
         request.setIdReporteMascota(id);
-        return toDTO(reporteRepo.save(toEntity(request)));
+        ReporteMascotaDTO dto = toDTO(reporteRepo.save(toEntity(request)));
+
+        // Patrón Outbox: notifica que el reporte fue actualizado
+        outboxService.registrar("REPORTE_ACTUALIZADO", dto.getIdReporteMascota(), dto);
+
+        return dto;
     }
 
     public void delete(Integer id) {
