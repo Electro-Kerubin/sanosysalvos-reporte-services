@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS marca_distintiva (
 -- =========================
 
 CREATE TABLE IF NOT EXISTS contacto (
-    id_contacto          INT            PRIMARY KEY,
+    id_contacto          SERIAL         PRIMARY KEY,
     nombres              VARCHAR(255),
     correo               VARCHAR(255),
     telefono             BIGINT,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS contacto (
 -- =========================
 
 CREATE TABLE IF NOT EXISTS mascota (
-    id_mascota          INT             PRIMARY KEY,
+    id_mascota          SERIAL          PRIMARY KEY,
     nombre_mascota      VARCHAR(255),
     id_raza             INT,
     id_especie          INT,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS mascota (
 -- =========================
 
 CREATE TABLE IF NOT EXISTS reporte_mascota (
-    id_reporte_mascota  INT             PRIMARY KEY,
+    id_reporte_mascota  SERIAL          PRIMARY KEY,
     id_tipo_reporte     INT,
     id_estatus          INT,
     fecha_extravio      DATE,
