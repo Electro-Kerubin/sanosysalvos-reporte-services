@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 
 @Service
+@SuppressWarnings("null")
 public class ReporteServiceImpl implements ReporteService {
 
     private final ReporteRepository reporteRepository;
