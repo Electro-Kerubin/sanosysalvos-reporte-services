@@ -17,6 +17,7 @@ public class ReporteMascotaDTO {
     private LocalDate fechaExtravio;
     private Integer idContacto;
     private String nombresContacto;
+    private String correoContacto;
     private LocalDate fechaAvistamiento;
     private LocalDateTime fechaReporte;
     private Integer idMarcaDistintiva;

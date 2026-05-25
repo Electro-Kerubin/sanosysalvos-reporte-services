@@ -122,6 +122,7 @@ public class ReporteMascotaService {
         if (r.getContacto() != null) {
             dto.setIdContacto(r.getContacto().getIdContacto());
             dto.setNombresContacto(r.getContacto().getNombres());
+            dto.setCorreoContacto(r.getContacto().getCorreo());
         }
         if (r.getMarcaDistintiva() != null) {
             dto.setIdMarcaDistintiva(r.getMarcaDistintiva().getIdMarcaDistintiva());
