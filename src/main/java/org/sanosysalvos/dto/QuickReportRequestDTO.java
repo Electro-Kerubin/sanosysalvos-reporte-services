@@ -1,16 +1,32 @@
 package org.sanosysalvos.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.UUID;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class QuickReportRequestDTO {
-    private UUID qrUuid;
+    // Detalles de la mascota avistada
+    private Integer idEspecie;
+    private Integer idRaza;
+    private String tamano;
+    private String colorPrimario;
+    private String fotoUrl;
+    private String descripcion;
+
+    // Detalles del avistamiento
+    private LocalDate fechaAvistamiento;
     private String latitud;
     private String longitud;
-    private String descripcion;
+
+    // Información de contacto de quien reporta (temporal)
+    private String nombreContacto;
+    private String correoContacto;
+    private Long telefonoContacto;
 }

@@ -24,6 +24,8 @@ public class ReporteMascotaService {
     private final ContactoRepository contactoRepo;
     private final MarcaDistintivaRepository marcaRepo;
     private final MascotaRepository mascotaRepo;
+    private final RazaRepository razaRepo;
+    private final EspecieRepository especieRepo;
 
     // ── Outbox: persistencia desacoplada del evento ──────────────────────────
     private final OutboxService outboxService;
@@ -130,23 +132,49 @@ public class ReporteMascotaService {
 
     @Transactional
     public ReporteMascotaDTO createQuickReport(org.sanosysalvos.dto.QuickReportRequestDTO request) {
-        // Buscar información previa mediante el QR de la placa
-        ReporteMascota reportePrevio = reporteRepo.findFirstByMascota_QrUuidOrderByFechaReporteDesc(request.getQrUuid())
-                .orElseThrow(() -> new RuntimeException("Mascota no encontrada para el código QR proporcionado"));
+        // 1. Crear un contacto temporal para la persona que reporta.
+        // Este contacto no requiere cuenta y se podrá purgar automáticamente.
+        Contacto contactoTemporal = new Contacto();
+        contactoTemporal.setNombres(request.getNombreContacto());
+        contactoTemporal.setCorreo(request.getCorreoContacto());
+        contactoTemporal.setTelefono(request.getTelefonoContacto());
+        contactoTemporal.setEsTemporal(true);
+        contactoTemporal.setCreadoEn(LocalDateTime.now());
+        Contacto contactoGuardado = contactoRepo.save(contactoTemporal);
 
-        ReporteMascota entity = new ReporteMascota();
-        // 3 = Avistamiento, acorde a tus scripts de base de datos
-        entity.setTipoReporte(tipoReporteRepo.findById(3).orElseThrow(() -> new RuntimeException("Tipo reporte no encontrado")));
-        // 1 = Activo
-        entity.setEstatus(estatusRepo.findById(1).orElseThrow(() -> new RuntimeException("Estatus no encontrado")));
-        entity.setFechaAvistamiento(LocalDate.now());
-        entity.setFechaReporte(LocalDateTime.now());
-        entity.setMascota(reportePrevio.getMascota());
+        // 2. Crear una mascota temporal con los datos del avistamiento.
+        // No se le asigna dueño ni QR, es solo para el registro del avistamiento.
+        Mascota mascotaAvistada = new Mascota();
+        if (request.getIdEspecie() != null) {
+            mascotaAvistada.setEspecie(especieRepo.findById(request.getIdEspecie())
+                    .orElseThrow(() -> new RuntimeException("Especie no encontrada con id: " + request.getIdEspecie())));
+        }
+        if (request.getIdRaza() != null) {
+            mascotaAvistada.setRaza(razaRepo.findById(request.getIdRaza())
+                    .orElseThrow(() -> new RuntimeException("Raza no encontrada con id: " + request.getIdRaza())));
+        }
+        mascotaAvistada.setTamano(request.getTamano());
+        mascotaAvistada.setColorPrimario(request.getColorPrimario());
+        mascotaAvistada.setFotoUrl(request.getFotoUrl());
+        mascotaAvistada.setDetallesExtra(request.getDescripcion());
+        Mascota mascotaGuardada = mascotaRepo.save(mascotaAvistada);
 
-        // Guarda el reporte de avistamiento express
-        ReporteMascotaDTO dto = toDTO(reporteRepo.save(entity));
+        // 3. Crear el reporte de tipo "Avistamiento".
+        ReporteMascota reporte = new ReporteMascota();
+        reporte.setTipoReporte(tipoReporteRepo.findById(3) // 3 = Avistamiento
+                .orElseThrow(() -> new RuntimeException("Tipo de reporte 'Avistamiento' no encontrado")));
+        reporte.setEstatus(estatusRepo.findById(1) // 1 = Activo
+                .orElseThrow(() -> new RuntimeException("Estatus 'Activo' no encontrado")));
+        reporte.setFechaAvistamiento(request.getFechaAvistamiento() != null ? request.getFechaAvistamiento() : LocalDate.now());
+        reporte.setFechaReporte(LocalDateTime.now());
+        reporte.setMascota(mascotaGuardada);
+        reporte.setContacto(contactoGuardado);
+        // TODO: Guardar coordenadas (request.getLatitud(), request.getLongitud()) en la tabla/servicio correspondiente.
 
-        // Publicar al bus de eventos vía Outbox sin trabar la solicitud
+        ReporteMascota reporteGuardado = reporteRepo.save(reporte);
+        ReporteMascotaDTO dto = toDTO(reporteGuardado);
+
+        // 4. Registrar evento para notificaciones (ej. motor de coincidencias).
         outboxService.registrar("AVISTAMIENTO_EXPRESS_CREADO", dto.getIdReporteMascota(), dto);
 
         return dto;
