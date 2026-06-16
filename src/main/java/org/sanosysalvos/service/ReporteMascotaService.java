@@ -8,8 +8,10 @@ import org.sanosysalvos.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,6 +76,13 @@ public class ReporteMascotaService {
     @Transactional
     public ReporteMascotaDTO create(ReporteMascotaRequestDTO request) {
         ReporteMascota entity = toEntity(request);
+
+        // Generador QR: Generar automáticamente el UUID al registrar la mascota
+        if (entity.getMascota() != null && entity.getMascota().getQrUuid() == null) {
+            entity.getMascota().setQrUuid(UUID.randomUUID());
+            mascotaRepo.save(entity.getMascota());
+        }
+
         ReporteMascotaDTO dto = toDTO(reporteRepo.save(entity));
 
         // Patrón Outbox: guarda el evento en la misma transacción que el reporte.
@@ -100,6 +109,47 @@ public class ReporteMascotaService {
         reporteRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
         reporteRepo.deleteById(id);
+    }
+
+    public org.sanosysalvos.dto.MascotaPublicDTO getMascotaPublicInfoByQr(UUID qrUuid) {
+        ReporteMascota reporte = reporteRepo.findFirstByMascota_QrUuidOrderByFechaReporteDesc(qrUuid)
+                .orElseThrow(() -> new RuntimeException("No se encontró información pública para este código QR"));
+
+        Mascota mascota = reporte.getMascota();
+        Contacto contacto = reporte.getContacto();
+
+        return org.sanosysalvos.dto.MascotaPublicDTO.builder()
+                .nombreMascota(mascota.getNombreMascota())
+                .detallesExtra(mascota.getDetallesExtra())
+                .colorPrimario(mascota.getColorPrimario())
+                .nombreContacto(contacto != null ? contacto.getNombres() : "No disponible")
+                .telefonoContacto(contacto != null ? String.valueOf(contacto.getTelefono()) : "No disponible")
+                .correoContacto(contacto != null ? contacto.getCorreo() : "No disponible")
+                .build();
+    }
+
+    @Transactional
+    public ReporteMascotaDTO createQuickReport(org.sanosysalvos.dto.QuickReportRequestDTO request) {
+        // Buscar información previa mediante el QR de la placa
+        ReporteMascota reportePrevio = reporteRepo.findFirstByMascota_QrUuidOrderByFechaReporteDesc(request.getQrUuid())
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada para el código QR proporcionado"));
+
+        ReporteMascota entity = new ReporteMascota();
+        // 3 = Avistamiento, acorde a tus scripts de base de datos
+        entity.setTipoReporte(tipoReporteRepo.findById(3).orElseThrow(() -> new RuntimeException("Tipo reporte no encontrado")));
+        // 1 = Activo
+        entity.setEstatus(estatusRepo.findById(1).orElseThrow(() -> new RuntimeException("Estatus no encontrado")));
+        entity.setFechaAvistamiento(LocalDate.now());
+        entity.setFechaReporte(LocalDateTime.now());
+        entity.setMascota(reportePrevio.getMascota());
+
+        // Guarda el reporte de avistamiento express
+        ReporteMascotaDTO dto = toDTO(reporteRepo.save(entity));
+
+        // Publicar al bus de eventos vía Outbox sin trabar la solicitud
+        outboxService.registrar("AVISTAMIENTO_EXPRESS_CREADO", dto.getIdReporteMascota(), dto);
+
+        return dto;
     }
 
     // ---- Mappers ----
@@ -160,4 +210,3 @@ public class ReporteMascotaService {
         return entity;
     }
 }
-

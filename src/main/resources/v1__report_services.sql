@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS mascota (
     edad                INT,
     detalles_extra      VARCHAR(255),
     id_chip             VARCHAR(100),
+    qr_uuid             UUID UNIQUE,
     CONSTRAINT fk_mascota_raza
         FOREIGN KEY (id_raza)
         REFERENCES raza(id_raza),
@@ -153,6 +154,9 @@ CREATE INDEX IF NOT EXISTS idx_mascota_id_chip
 
 CREATE INDEX IF NOT EXISTS idx_mascota_nombre
     ON mascota(nombre_mascota);
+
+CREATE INDEX IF NOT EXISTS idx_mascota_qr_uuid
+    ON mascota(qr_uuid);
 
 -- ---- reporte_mascota ----
 -- Consultas frecuentes por estado, tipo, mascota, contacto y fechas
@@ -244,4 +248,3 @@ INSERT INTO marca_distintiva (id_marca_distintiva, descripcion) VALUES
     (5, 'Cicatriz'),
     (6, 'Sin marca distintiva')
 ON CONFLICT (id_marca_distintiva) DO NOTHING;
-
