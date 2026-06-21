@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/reportes")
@@ -74,6 +75,18 @@ public class ReporteMascotaController {
     @PostMapping
     public ResponseEntity<ReporteMascotaDTO> create(@RequestBody ReporteMascotaRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+    }
+
+    /** GET /api/reportes/qr/{qr_uuid} — Lector público de código QR */
+    @GetMapping("/qr/{qr_uuid}")
+    public ResponseEntity<org.sanosysalvos.dto.MascotaPublicDTO> findByQr(@PathVariable("qr_uuid") UUID qrUuid) {
+        return ResponseEntity.ok(service.getMascotaPublicInfoByQr(qrUuid));
+    }
+
+    /** POST /api/reportes/quick — Avistamiento express sin cuenta usando QR */
+    @PostMapping("/quick")
+    public ResponseEntity<ReporteMascotaDTO> createQuickReport(@RequestBody org.sanosysalvos.dto.QuickReportRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createQuickReport(request));
     }
 
     @PutMapping("/{id}")
