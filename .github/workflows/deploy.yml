@@ -219,9 +219,6 @@ jobs:
             fi
 
             # --- Deploy ---
-            cd /opt/sanosysalvos/infra
-            sudo docker compose pull api-gateway
-            sudo docker compose stop api-gateway || true
-            sudo docker compose rm -f api-gateway || true
-            sudo docker compose up -d api-gateway
+            sudo docker compose pull report-service
+            sudo docker compose up -d --no-deps report-service
             sudo docker image prune -f
