@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ReporteMascotaRepository extends JpaRepository<ReporteMascota, Integer> {
@@ -26,4 +28,6 @@ public interface ReporteMascotaRepository extends JpaRepository<ReporteMascota, 
 
     @Query("SELECT r FROM ReporteMascota r WHERE r.tipoReporte.idTipoReporte = 2 AND r.estatus.idEstatus = 1")
     List<ReporteMascota> findMascotasEncontradas();
+
+    Optional<ReporteMascota> findFirstByMascotaQrUuidOrderByFechaReporteDesc(UUID qrUuid);
 }

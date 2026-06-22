@@ -114,7 +114,7 @@ public class ReporteMascotaService {
     }
 
     public org.sanosysalvos.dto.MascotaPublicDTO getMascotaPublicInfoByQr(UUID qrUuid) {
-        ReporteMascota reporte = reporteRepo.findFirstByMascota_QrUuidOrderByFechaReporteDesc(qrUuid)
+        ReporteMascota reporte = reporteRepo.findFirstByMascotaQrUuidOrderByFechaReporteDesc(qrUuid)
                 .orElseThrow(() -> new RuntimeException("No se encontró información pública para este código QR"));
 
         Mascota mascota = reporte.getMascota();
