@@ -23,6 +23,8 @@ import java.util.List;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
+
     @Value("${jwt.secret}")
     private String secret;
 
@@ -41,7 +43,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = header.substring(7);
 
         try {
-            System.out.println("DEBUG: Validating token with secret = [" + secret + "] length = " + secret.length());
+            log.info("JWT validation: secret = [{}], length = {}", secret, secret.length());
             Claims claims = Jwts.parser()
                     .verifyWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
                     .build()
@@ -53,6 +55,7 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
 
         } catch (JwtException e) {
+            log.error("JWT validation failed: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Token inválido o expirado\"}");
