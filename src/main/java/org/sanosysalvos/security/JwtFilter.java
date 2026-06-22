@@ -41,6 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = header.substring(7);
 
         try {
+            System.out.println("DEBUG: Validating token with secret = [" + secret + "] length = " + secret.length());
             Claims claims = Jwts.parser()
                     .verifyWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
                     .build()
