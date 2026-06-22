@@ -2,6 +2,7 @@ package org.sanosysalvos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "contacto")
@@ -27,5 +28,11 @@ public class Contacto {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_canal_preferencia")
     private CanalPreferencia canalPreferencia;
+
+    @Column(name = "es_temporal")
+    private Boolean esTemporal;
+
+    @Column(name = "creado_en")
+    private LocalDateTime creadoEn;
 }
 

@@ -2,6 +2,7 @@ package org.sanosysalvos.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "mascota")
@@ -47,5 +48,11 @@ public class Mascota {
 
     @Column(name = "id_chip")
     private String idChip;
+
+    @Column(name = "foto_url")
+    private String fotoUrl;
+
+    @Column(name = "qr_uuid")
+    private UUID qrUuid;
 }
 

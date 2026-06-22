@@ -155,7 +155,6 @@ public class ReporteMascotaService {
         }
         mascotaAvistada.setTamano(request.getTamano());
         mascotaAvistada.setColorPrimario(request.getColorPrimario());
-        mascotaAvistada.setFotoUrl(request.getFotoUrl());
         mascotaAvistada.setDetallesExtra(request.getDescripcion());
         Mascota mascotaGuardada = mascotaRepo.save(mascotaAvistada);
 
