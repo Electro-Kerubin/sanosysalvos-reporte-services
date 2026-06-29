@@ -79,20 +79,30 @@ public class ReporteMascotaService {
     public ReporteMascotaDTO create(ReporteMascotaRequestDTO request) {
         ReporteMascota entity = toEntity(request);
 
-        // Generador QR: Generar automáticamente el UUID al registrar la mascota
-        if (entity.getMascota() != null && entity.getMascota().getQrUuid() == null) {
-            entity.getMascota().setQrUuid(UUID.randomUUID());
-            mascotaRepo.save(entity.getMascota());
-        }
-
-        ReporteMascotaDTO dto = toDTO(reporteRepo.save(entity));
-
-        // Patrón Outbox: guarda el evento en la misma transacción que el reporte.
-        // OutboxEventPublisher lo publicará a RabbitMQ de forma asíncrona.
-        outboxService.registrar("REPORTE_CREADO", dto.getIdReporteMascota(), dto);
-
-        return dto;
+    // Generador QR
+    if (entity.getMascota() != null && entity.getMascota().getQrUuid() == null) {
+        entity.getMascota().setQrUuid(UUID.randomUUID());
+        mascotaRepo.save(entity.getMascota());
     }
+
+    // ── Desnormalización para el motor de coincidencias ──────────────────
+    if (entity.getMascota() != null) {
+        Mascota m = entity.getMascota();
+        // color
+        entity.setColor(m.getColorPrimario());
+        // tamano
+        entity.setTamano(m.getTamano());
+        // raza (descripcion del catálogo)
+        if (m.getRaza() != null) {
+            entity.setRaza(m.getRaza().getDescripcion());
+        }
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
+    ReporteMascotaDTO dto = toDTO(reporteRepo.save(entity));
+    outboxService.registrar("REPORTE_CREADO", dto.getIdReporteMascota(), dto);
+    return dto;
+}
 
     @Transactional
     public ReporteMascotaDTO update(Integer id, ReporteMascotaRequestDTO request) {

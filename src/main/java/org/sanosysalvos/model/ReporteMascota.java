@@ -46,5 +46,21 @@ public class ReporteMascota {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mascota")
     private Mascota mascota;
-}
 
+    // ── Campos desnormalizados para el motor de coincidencias ──────────────
+    @Column(name = "raza")
+    private String raza;
+
+    @Column(name = "color")
+    private String color;
+
+    @Column(name = "tamano")
+    private String tamano;
+
+    @Column(name = "latitud")
+    private Double latitud;
+
+    @Column(name = "longitud")
+    private Double longitud;
+    // ───────────────────────────────────────────────────────────────────────
+}
