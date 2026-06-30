@@ -16,5 +16,7 @@ public class Raza {
 
     @Column(name = "descripcion")
     private String descripcion;
-}
 
+    @Column(name = "id_especie")
+    private Integer idEspecie;
+}

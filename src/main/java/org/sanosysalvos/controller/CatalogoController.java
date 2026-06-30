@@ -30,6 +30,8 @@ public class CatalogoController {
         return ResponseEntity.ok(list);
     }
 
+    
+
     @GetMapping("/estatus")
     public ResponseEntity<List<CatalogoDTO>> getEstatus() {
         List<CatalogoDTO> list = estatusRepo.findAll().stream()
@@ -49,7 +51,7 @@ public class CatalogoController {
     @GetMapping("/razas")
     public ResponseEntity<List<CatalogoDTO>> getRazas() {
         List<CatalogoDTO> list = razaRepo.findAll().stream()
-                .map(r -> new CatalogoDTO(r.getIdRaza(), r.getDescripcion()))
+                .map(r -> new CatalogoDTO(r.getIdRaza(), r.getDescripcion(), r.getIdEspecie()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
