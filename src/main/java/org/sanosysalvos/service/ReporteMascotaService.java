@@ -194,30 +194,49 @@ public class ReporteMascotaService {
     private ReporteMascotaDTO toDTO(ReporteMascota r) {
         ReporteMascotaDTO dto = new ReporteMascotaDTO();
         dto.setIdReporteMascota(r.getIdReporteMascota());
+        dto.setIdTipoReporte(r.getTipoReporte() != null ? r.getTipoReporte().getIdTipoReporte() : null);
+        dto.setDescripcionTipoReporte(r.getTipoReporte() != null ? r.getTipoReporte().getDescripcionTipoReporte() : null);
+        dto.setIdEstatus(r.getEstatus() != null ? r.getEstatus().getIdEstatus() : null);
+        dto.setDescripcionEstatus(r.getEstatus() != null ? r.getEstatus().getDescripcionEstatus() : null);
         dto.setFechaExtravio(r.getFechaExtravio());
         dto.setFechaAvistamiento(r.getFechaAvistamiento());
         dto.setFechaReporte(r.getFechaReporte());
+        dto.setIdMarcaDistintiva(r.getMarcaDistintiva() != null ? r.getMarcaDistintiva().getIdMarcaDistintiva() : null);
+        dto.setDescripcionMarcaDistintiva(r.getMarcaDistintiva() != null ? r.getMarcaDistintiva().getDescripcion() : null);
 
-        if (r.getTipoReporte() != null) {
-            dto.setIdTipoReporte(r.getTipoReporte().getIdTipoReporte());
-            dto.setDescripcionTipoReporte(r.getTipoReporte().getDescripcionTipoReporte());
-        }
-        if (r.getEstatus() != null) {
-            dto.setIdEstatus(r.getEstatus().getIdEstatus());
-            dto.setDescripcionEstatus(r.getEstatus().getDescripcionEstatus());
-        }
         if (r.getContacto() != null) {
             dto.setIdContacto(r.getContacto().getIdContacto());
             dto.setNombresContacto(r.getContacto().getNombres());
+            dto.setCorreoContacto(r.getContacto().getCorreo());
+            dto.setTelefonoContacto(r.getContacto().getTelefono());
+            if (r.getContacto().getCanalPreferencia() != null) {
+                dto.setIdCanalPreferencia(r.getContacto().getCanalPreferencia().getIdCanalPreferencia());
+                dto.setDescripcionCanalPreferencia(r.getContacto().getCanalPreferencia().getDescripcion());
+            }
         }
-        if (r.getMarcaDistintiva() != null) {
-            dto.setIdMarcaDistintiva(r.getMarcaDistintiva().getIdMarcaDistintiva());
-            dto.setDescripcionMarcaDistintiva(r.getMarcaDistintiva().getDescripcion());
-        }
+
         if (r.getMascota() != null) {
-            dto.setIdMascota(r.getMascota().getIdMascota());
-            dto.setNombreMascota(r.getMascota().getNombreMascota());
+            Mascota m = r.getMascota();
+            dto.setIdMascota(m.getIdMascota());
+            dto.setNombreMascota(m.getNombreMascota());
+            dto.setColorPrimario(m.getColorPrimario());
+            dto.setTamano(m.getTamano());
+            dto.setEdad(m.getEdad());
+            dto.setDetallesExtra(m.getDetallesExtra());
+            if (m.getEspecie() != null) {
+                dto.setIdEspecie(m.getEspecie().getIdEspecie());
+                dto.setDescripcionEspecie(m.getEspecie().getDescripcion());
+            }
+            if (m.getRaza() != null) {
+                dto.setIdRaza(m.getRaza().getIdRaza());
+                dto.setDescripcionRaza(m.getRaza().getDescripcion());
+            }
+            if (m.getSexo() != null) {
+                dto.setIdSexo(m.getSexo().getIdSexo());
+                dto.setDescripcionSexo(m.getSexo().getDescripcion());
+            }
         }
+
         return dto;
     }
 
